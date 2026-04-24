@@ -12,7 +12,7 @@ The advisor routes a free-text scenario through a four-step pipeline — event e
 
 ### 1. This is a research prototype
 
-The advisor was designed, tested, and refined natively on **Claude (Opus 4.7)**. The Gemini GEM version documented here is a **portability demo** — it proves the methodology travels across platforms, but operates at materially reduced fidelity (weaker RAG grounding, occasional thinking-time instability, looser adherence to the hard constraints in the system prompt). The three examples in `examples/` deliberately include Gemini's mistakes with annotations, so readers can calibrate what "prototype" actually means.
+The advisor was designed, tested, and refined natively on **Claude (Opus 4.7)**. Two public-platform ports are now documented: a **Gemini Gem** build (`GEM_System_Prompt.md`, ~full-length) and a **ChatGPT 5.5** build (`ChatGPT_System_Prompt.md`, ≤8k-token orchestrator variant authored on the day ChatGPT 5.5 launched). Both are **portability demos** — they prove the methodology travels across platforms, but operate at materially reduced fidelity compared with the Claude-native original (weaker RAG grounding, occasional thinking-time instability, looser adherence to the hard constraints in the system prompt). The three examples in `examples/` deliberately include Gemini's mistakes with annotations, so readers can calibrate what "prototype" actually means.
 
 ### 2. The factor codes are a personal research apparatus
 
@@ -47,7 +47,8 @@ See `examples/` for three fully-worked scenarios with actual Gemini output and a
 ```
 sep-negotiation-advisor/
 ├── README.md                ← this file
-├── GEM_System_Prompt.md     ← the system prompt (paste into GEM instructions)
+├── GEM_System_Prompt.md     ← Gemini Gem port (paste into Gem instructions)
+├── ChatGPT_System_Prompt.md ← ChatGPT 5.5 port (≤8k orchestrator variant; paste into a custom GPT's instructions)
 ├── examples/
 │   ├── 01_licensee_passive_ignore.md       ← implementer ignores notice + chart
 │   ├── 02_licensee_tactical_delay.md       ← implementer demands full chart to stall
@@ -96,15 +97,29 @@ A functional RAG for this advisor needs roughly the following doctrinal material
 - **Taxonomy-maintenance methodology skills.** The advisor is a taxonomy *consumer*. A methodology-for-curating-the-taxonomy document will bleed curator-voice into scenario outputs.
 - **Raw judgment text.** Too low-density. If you need paragraph-level accuracy, add specific judgment excerpts only where a thread cites them.
 
-### Deployment (Gemini Gem, the demo platform)
+### Deployment A — Gemini Gem
 
 1. Author the knowledge base documents described above (in `.txt` or Google Doc format — Gemini does not accept `.md` uploads as of this writing).
-2. Consolidate to **≤10 files** if using Gemini Gems — the platform enforces a file-count limit. Logical groupings: tag-dictionary + aggregation-memo standalone; aggregation layer (overview + practitioner matrix + jurisdictional divergence + watch-items) merged; threads merged pairwise by thematic coupling (e.g. T04+T08 rate-setting methodology, T05+T07 forum-and-trigger procedure).
+2. Consolidate to **≤10 files** — the Gem platform enforces a file-count limit. Logical groupings: tag-dictionary + aggregation-memo standalone; aggregation layer (overview + practitioner matrix + jurisdictional divergence + watch-items) merged; threads merged pairwise by thematic coupling (e.g. T04+T08 rate-setting methodology, T05+T07 forum-and-trigger procedure).
 3. Create a new Gem in Gemini. Paste the block between `=== BEGIN GEM PROMPT ===` and `=== END GEM PROMPT ===` from `GEM_System_Prompt.md` into the instructions field.
 4. Upload the knowledge base files as the Gem's knowledge.
 5. Test with the `examples/01_licensee_passive_ignore.md` scenario and verify the output identifies: Limb-5 breach, chart-delivery fulfilling P-N1-07 (licensor side performed), R11 activation, N33 accrual, R12 forum-choice risk. If any of these is missed or substantially garbled, retrieval is not grounding correctly.
 
-Native Claude deployment is operator-specific and not documented here.
+### Deployment B — ChatGPT 5.5 (custom GPT)
+
+Authored on the day ChatGPT 5.5 launched. The prompt (`ChatGPT_System_Prompt.md`) is a condensed **≤8k-token orchestrator** that preserves the Step 0–5 pipeline (gate → events → doctrine map → trigger/threshold/consequence → consequence modules A–H → exposure report) and the hard rules, trimmed to fit ChatGPT's custom-GPT instruction budget.
+
+1. Author / consolidate the knowledge base as above. The ChatGPT port references ten specific corpus filenames (`01_tag_dictionary.txt`, `02_v1.1_aggregation_memo.txt`, `03_aggregation_layer.txt`, `04_T01_willing_licensee.txt`, `05_T02_non_discrimination.txt`, `06_T03_R11_limitation.txt`, `07_T04_T08_rate_setting.txt`, `08_T05_T07_forum_and_trigger.txt`, `09_T06_confidentiality.txt`, `10_T09_N33_compound_interest.txt`) — either match these names or edit the `## RAG source of truth` block to your filenames.
+2. Create a new custom GPT at chatgpt.com. Paste the entire `ChatGPT_System_Prompt.md` contents into the Instructions field.
+3. Upload the ten knowledge-base files into the GPT's Knowledge section.
+4. Enable the `File search` tool; disable image generation and code interpreter unless you have a reason to keep them.
+5. Smoke-test with `examples/01_licensee_passive_ignore.md` (same success criteria as above).
+
+Platform differences worth knowing: ChatGPT 5.5 retrieves corpus filenames aggressively (hence the explicit per-file mapping) and is stricter than Gemini about separating `doctrine engaged` from `outcome established` — the ≤8k port leans into that by naming Step 3 `trigger / threshold / consequence` explicitly. Failure modes A–E from §Known failure modes still apply in principle; the ChatGPT port has not yet been regression-tested against the three example scenarios in this repo.
+
+### Deployment C — Native Claude
+
+Operator-specific and not documented here.
 
 ---
 
@@ -150,7 +165,7 @@ Fuller rationale is elided; key decisions:
 
 - **Why not ship the corpus?** See §Building your own RAG above.
 
-- **Why accept the Gemini deployment's reduced fidelity?** Gemini GEM is the most frictionless public-facing deployment for a prototype. Claude has better grounding but no comparable consumer-facing share-a-Gem primitive. The tradeoff is deliberate: portability and demo accessibility over output quality. The examples/ annotations document what was lost.
+- **Why accept the Gemini / ChatGPT deployments' reduced fidelity?** Gemini Gem and ChatGPT custom GPTs are the most frictionless public-facing deployments for a prototype. Claude has better grounding but no comparable consumer-facing share primitive. The tradeoff is deliberate: portability and demo accessibility over output quality. The examples/ annotations document what was lost on Gemini; the ChatGPT 5.5 port is newer and has not yet been annotated against the same regression scenarios.
 
 ---
 
